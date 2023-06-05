@@ -73,7 +73,14 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
-
+const AddButton = styled.button`
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+`;
 
 // Listing Component
 const ListingRenderer = ({ items, onDelete, onDone }) => {
@@ -123,51 +130,54 @@ const dummyItems = [{
     done: false,
 }]
 
-
-
-
 const TodoList = () => {
-    const [input,setInput]=useState("")
-    const [todolist,setTodoList]=useState([])
-    const [completedTaskCount, setCompletedTaskCount] = useState(0);
-
-    const handleClick = () => {
-        const id = todoList.length + 1;
-        setTodoList((prev) => [
-          ...prev,
-          {
-            id: id,
-            title: input,
-            done: false,
-          }
-        ]);
-        setInput("");
-      };
-      const handleComplete = (id) => {
-        let list = todolist.map((task) => {
-          let item = {};
-          if (task.id == id) {
-            if (!task.done){
-                setCompletedTaskCount(completedTaskCount + 1);
-            } 
-            else {
-                setCompletedTaskCount(completedTaskCount - 1);
-            }
-            item = { ...task, done: !task.done };
-          } else item = { ...task };
-    return item;
-        });
-        setTodoList(list);
-      };
+    const [items, setItems] = useState(dummyItems);
+    const [newItem, setNewItem] = useState('');
+  
+    const handleAddItem = () => {
+      if (newItem.trim() !== '') {
+        const newItemObject = {
+          id: Date.now(),
+          title: newItem,
+          done: false,
+        };
+  
+        setItems([...items, newItemObject]);
+        setNewItem('');
+      }
+    };
+  
+    const handleDeleteItem = (itemId) => {
+      const updatedItems = items.filter((item) => item.id !== itemId);
+      setItems(updatedItems);
+    };
+  
+    const handleToggleDone = (itemId) => {
+      const updatedItems = items.map((item) => {
+        if (item.id === itemId) {
+          return { ...item, done: !item.done };
+        }
+        return item;
+      });
+  
+      setItems(updatedItems);
+    };
 
     return (
         <TodoListWrapper>
-            <HeadingRenderer title="My Todo List" count="5">
-                <button onClick={()=>handleClick()}>Add</button>
-            </HeadingRenderer>
-            <ListInputRenderer />
-            <ListingRenderer items={dummyItems} />
-        </TodoListWrapper>
+      <HeadingRenderer title="My Todo List" count={items.length} />
+      <TodoInput
+        value={newItem}
+        onChange={(e) => setNewItem(e.target.value)}
+        placeholder="Add new item"
+      />
+      <AddButton onClick={handleAddItem}>Add</AddButton>
+      <ListingRenderer
+        items={items}
+        onDelete={handleDeleteItem}
+        onDone={handleToggleDone}
+      />
+    </TodoListWrapper>
     )
 }
 
